@@ -1,10 +1,14 @@
 package com.google.developers.lettervault.ui.list
 
 import android.view.View
+import android.widget.TextView
 import androidx.annotation.VisibleForTesting
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.developers.lettervault.R
 import com.google.developers.lettervault.data.Letter
+import kotlinx.android.synthetic.main.letter_list_item.view.*
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -19,18 +23,30 @@ class LetterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     fun bindData(letter: Letter, clickListener: (Letter) -> Unit) {
         this.letter = letter
-        itemView.setOnClickListener { clickListener(letter) }
 
-        if (letter.expires < System.currentTimeMillis() && letter.opened != 0L) {
-            val opened =
-                context.getString(R.string.title_opened, simpleDate.format(letter.opened))
+        // First: Text for the state
+        // Second: Show lock
+        val footer = if (letter.expires < System.currentTimeMillis() && letter.opened != 0L) {
+            context.getString(R.string.title_opened, simpleDate.format(letter.opened)) to false
         } else {
             if (letter.expires < System.currentTimeMillis()) {
-                val ready = context.getString(R.string.letter_ready)
+                context.getString(R.string.letter_ready) to true
             } else {
-                val opening =
-                    context.getString(R.string.letter_opening, simpleDate.format(letter.expires))
+                context.getString(R.string.letter_opening, simpleDate.format(letter.expires)) to true
             }
+        }
+
+        itemView.apply {
+            setOnClickListener { clickListener(letter) }
+
+            letter_subject?.text = letter.subject
+            letter_content?.apply {
+                text = letter.content
+                isGone = footer.second
+            }
+            letter_state?.text = footer.first
+            letter_lock?.isVisible = footer.second
+            letter_mini_lock?.isVisible = letter.opened != 0L
         }
     }
 

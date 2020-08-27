@@ -12,11 +12,12 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import com.google.developers.lettervault.R
 import com.google.developers.lettervault.data.Letter
+import com.google.developers.lettervault.ui.home.HomeActivity
 import com.google.developers.lettervault.util.Event
 import com.google.developers.lettervault.util.LETTER_ID
 import kotlinx.android.synthetic.main.activity_letter_detail.*
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
 
 /**
  * Display a unlocked letter or a lock if letter is still in vault.
@@ -31,7 +32,9 @@ class LetterDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_letter_detail)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+        }
 
         val factory = LetterDetailViewModelFactory(this, intent.getLongExtra(LETTER_ID, 0L))
         viewModel = ViewModelProviders.of(this, factory).get(LetterDetailViewModel::class.java)
@@ -42,7 +45,17 @@ class LetterDetailActivity : AppCompatActivity() {
             putExtra(Intent.EXTRA_TEXT, getString(R.string.share_locked))
         }
 
-        viewModel.letter.observe(this, Observer(this::init))
+        viewModel.letter.observe(this, Observer(::init))
+        viewModel.canOpen.observe(this, Observer(::runEvent))
+
+        // Exam task nº6:
+        // The lock has not a click listener to execute the opening task.
+        // First is needed to check if is possible to open, and then open it.
+        // If is not possible, the snackbar will appear.
+        // If is possible, the letter will be opened.
+        lock?.setOnClickListener {
+            viewModel.tryOpening(viewModel.letter.value)
+        }
     }
 
     private fun runEvent(eventLetter: Event<Letter>) {
@@ -63,8 +76,7 @@ class LetterDetailActivity : AppCompatActivity() {
         if (letter == null) return
         if (letter.expires > System.currentTimeMillis()) {
             lock.visibility = View.VISIBLE
-            supportActionBar?.title =
-                getString(R.string.title_opening, simpleDate.format(letter.expires))
+            supportActionBar?.title = getString(R.string.title_opening, simpleDate.format(letter.expires))
             return
         } else {
             lock.visibility = View.GONE

@@ -28,16 +28,18 @@ class LetterAdapter(
 
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return super.getItemViewType(position)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LetterViewHolder {
-        throw NotImplementedError()
+        return LayoutInflater
+            .from(parent.context)
+            .inflate(R.layout.letter_list_item, parent, false)
+            .let { view -> LetterViewHolder(view) }
+
     }
 
     override fun onBindViewHolder(holder: LetterViewHolder, position: Int) {
-
+        getItem(position)?.let {
+            holder.bindData(it, clickListener)
+        }
     }
 
 }

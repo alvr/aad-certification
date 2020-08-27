@@ -45,7 +45,38 @@ class NotificationWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, p
             false
         )
 
+        if (shouldNotify) {
+            createNotification()
+        }
+
         return Result.success()
+    }
+
+    private fun createNotification() {
+        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                applicationContext.getString(R.string.notify_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = applicationContext.getString(R.string.notify_channel_description)
+            }
+
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL_ID)
+            .setContentTitle(applicationContext.getString(R.string.notify_title))
+            .setContentText(applicationContext.getString(R.string.notify_content))
+            .setSmallIcon(R.drawable.ic_mail)
+            .setContentIntent(getContentIntent())
+            .setAutoCancel(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .build()
+
+        notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
 }

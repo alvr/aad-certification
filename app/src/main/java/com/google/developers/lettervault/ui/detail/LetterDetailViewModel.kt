@@ -17,9 +17,11 @@ class LetterDetailViewModel(
     val canOpen: LiveData<Event<Letter>>
         get() = _canOpen
 
-    fun tryOpening(letter: Letter) {
-        _canOpen.value = Event(letter)
-        open(letter)
+    fun tryOpening(letter: Letter?) {
+        letter?.let {
+            _canOpen.value = Event(letter)
+            open(letter)
+        }
     }
 
     /**

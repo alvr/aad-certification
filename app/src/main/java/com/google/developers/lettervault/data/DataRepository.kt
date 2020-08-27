@@ -3,6 +3,7 @@ package com.google.developers.lettervault.data
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.paging.Config
+import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
@@ -12,6 +13,7 @@ import androidx.work.workDataOf
 import com.google.developers.lettervault.notification.NotificationWorker
 import com.google.developers.lettervault.util.LETTER_ID
 import com.google.developers.lettervault.util.LetterLock
+import com.google.developers.lettervault.util.PAGE_SIZE
 import com.google.developers.lettervault.util.executeThread
 import java.util.concurrent.TimeUnit
 
@@ -39,14 +41,24 @@ class DataRepository(private val letterDao: LetterDao) {
      * Get letters with a filtered state for paging.
      */
     fun getLetters(filter: LetterState): LiveData<PagedList<Letter>> {
-        throw NotImplementedError("needs implementation")
+        return LivePagedListBuilder<Int, Letter>(
+            letterDao.getLetters(getFilteredQuery(filter)),
+            Config(PAGE_SIZE)
+        ).build()
     }
 
-    fun getLetter(id: Long): LiveData<Letter> {
-        throw NotImplementedError("needs implementation")
-    }
+    /**
+     * Get the letter with the specified id
+     */
+    fun getLetter(id: Long) = letterDao.getLetter(id)
 
+    /**
+     * Delete the letter
+     */
     fun delete(letter: Letter) {
+        executeThread {
+            letterDao.delete(letter)
+        }
     }
 
     /**
@@ -54,6 +66,12 @@ class DataRepository(private val letterDao: LetterDao) {
      * when the letter vault can be opened.
      */
     fun save(letter: Letter) = executeThread {
+        val id = letterDao.insert(letter)
+        val request = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInputData(workDataOf(LETTER_ID to id))
+            .setInitialDelay(letter.expires - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+            .build()
+        WorkManager.getInstance().enqueue(request)
     }
 
     /**
@@ -67,6 +85,11 @@ class DataRepository(private val letterDao: LetterDao) {
         )
         letterDao.update(letterCopy)
     }
+
+    /**
+     * Get the last letter added to the database
+     */
+    fun getLatestLetter() = letterDao.getRecentLetter()
 
     /**
      * Create a raw query at runtime for filtering the letters.

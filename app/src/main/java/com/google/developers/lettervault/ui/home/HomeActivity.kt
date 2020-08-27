@@ -10,6 +10,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.developers.lettervault.R
 import com.google.developers.lettervault.data.Letter
+import com.google.developers.lettervault.ui.add.AddLetterActivity
+import com.google.developers.lettervault.ui.add.AddLetterViewModel
+import com.google.developers.lettervault.ui.add.AddLetterViewModelFactory
 import com.google.developers.lettervault.ui.detail.LetterDetailActivity
 import com.google.developers.lettervault.ui.list.ListActivity
 import com.google.developers.lettervault.ui.setting.SettingActivity
@@ -20,10 +23,17 @@ import kotlinx.android.synthetic.main.content_home.*
 
 class HomeActivity : AppCompatActivity() {
 
+    private lateinit var viewModel: HomeViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setSupportActionBar(toolbar)
+
+        val factory = HomeViewModelFactory(this)
+        viewModel = ViewModelProviders.of(this, factory).get(HomeViewModel::class.java)
+
+        initObserver()
     }
 
     /**
@@ -63,6 +73,8 @@ class HomeActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_add -> {
+                val listIntent = Intent(this, AddLetterActivity::class.java)
+                startActivity(listIntent)
                 true
             }
             R.id.action_list -> {
@@ -77,6 +89,12 @@ class HomeActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun initObserver() {
+        viewModel.letter.observe(this, Observer {
+            showRecent(it)
+        })
     }
 
 }

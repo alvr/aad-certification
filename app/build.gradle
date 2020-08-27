@@ -22,6 +22,7 @@ android {
 }
 
 dependencies {
+    androidTestImplementation 'androidx.test:rules:1.3.0'
     ext {
         core_version = "1.0.2"
         appcompat_version = "1.0.2"
@@ -34,6 +35,7 @@ dependencies {
         junit_version = "4.12"
         work_version = "2.0.1"
         runner_version = '1.2.0'
+        junit_runner_version = '1.1.2'
         espresso_version = '3.2.0'
     }
 
@@ -57,5 +59,7 @@ dependencies {
     testImplementation "junit:junit:$junit_version"
 
     androidTestImplementation "androidx.test:runner:$runner_version"
+    androidTestImplementation "androidx.test.ext:junit:$junit_runner_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    androidTestImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
 }

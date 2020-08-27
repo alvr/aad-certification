@@ -6,8 +6,10 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.developers.lettervault.R
+import com.google.developers.lettervault.ui.add.AddLetterActivity
 import com.google.developers.lettervault.ui.detail.LetterDetailActivity
 import com.google.developers.lettervault.ui.setting.SettingActivity
 import com.google.developers.lettervault.util.DataViewModelFactory
@@ -18,18 +20,36 @@ import kotlinx.android.synthetic.main.content_list.*
 class ListActivity : AppCompatActivity() {
 
     private lateinit var viewModel: LetterViewModel
+    private val letterAdapter by lazy {
+        LetterAdapter {
+            val intent = Intent(this, LetterDetailActivity::class.java).apply {
+                putExtra(LETTER_ID, it.id)
+            }
+            startActivity(intent)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         val factory = DataViewModelFactory(this)
         viewModel = ViewModelProviders.of(this, factory).get(LetterViewModel::class.java)
 
         val pixelSize = resources.getDimensionPixelSize(R.dimen.item_decoration_margin)
-        recycler.addItemDecoration(ItemDecoration(pixelSize))
+        recycler.apply {
+            addItemDecoration(ItemDecoration(pixelSize))
+            adapter = letterAdapter
+        }
+
+        fab?.setOnClickListener {
+            val intent = Intent(this, AddLetterActivity::class.java)
+            startActivity(intent)
+        }
+
+        initLetterObserver()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -56,6 +76,12 @@ class ListActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun initLetterObserver() {
+        viewModel.letters.observe(this, Observer { pagedList ->
+            letterAdapter.submitList(pagedList)
+        })
     }
 
 }

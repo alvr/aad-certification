@@ -24,10 +24,11 @@ class AddLetterViewModel(private val dataRepository: DataRepository) : ViewModel
         }
 
         val letter = Letter(
-            subject = LetterLock.encodeMessage(subject),
-            content = LetterLock.encodeMessage(content),
+            subject = LetterLock.encodeMessage(subject.trim()),
+            content = LetterLock.encodeMessage(content.trim()),
             created = created,
-            expires = expires
+            expires = expires,
+            opened = 0
         )
         dataRepository.save(letter)
         _saved.value = Event(true)

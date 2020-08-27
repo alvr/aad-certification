@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="240dp"
+    android:background="@drawable/ic_line"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:padding="@dimen/activity_padding">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/letter_subject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Sample subject" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/letter_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="3"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/letter_subject"
+        tools:text="Sample content of a letter" />
+
+    <ImageView
+        android:id="@+id/letter_lock"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:contentDescription="@string/lock_icon_image"
+        android:src="@drawable/ic_lock"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/letter_state"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/letter_subject"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/letter_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Ready to open" />
+
+    <ImageView
+        android:id="@+id/letter_mini_lock"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:contentDescription="@string/lock_icon_image"
+        android:paddingStart="4dp"
+        android:paddingEnd="0dp"
+        android:src="@drawable/ic_lock_open"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
+</androidx.constraintlayout.widget.ConstraintLayout>
